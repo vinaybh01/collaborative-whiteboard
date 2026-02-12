@@ -12,14 +12,20 @@ wss.on("connection", function connection(ws, request) {
   }
   const queryParams = new URLSearchParams(url.split("?")[1]);
   const token = queryParams.get("token") || "";
-  const decoded = jwt.verify(token, JWT_SECRET);
+ 
+  
+  // const decoded = jwt.verify(token, JWT_SECRET); commented out for testing
 
-  if (!decoded || !(decoded as JwtPayload).userId) {
-    ws.close();
-    return;
-  }
+  // if (!decoded || !(decoded as JwtPayload).userId) {
+  //   ws.close();
+  //   return;
+  // }
 
   ws.on("message", function message(data) {
-    ws.send("pong");
+   wss.clients.forEach((client) => {
+    if (client.readyState === ws.OPEN) {
+      client.send(data.toString());
+    }
+  });
   });
 });
